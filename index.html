@@ -141,24 +141,7 @@
   .ctl:hover { transform: translateY(-2px) scale(1.08); box-shadow: 0 8px 20px rgba(0, 0, 0, .34); }
   .ctl:active { transform: scale(.96); }
   .ctl[disabled] { cursor: default; }
-  #hint {
-    position: fixed;
-    left: 50%;
-    bottom: 12px;
-    transform: translateX(-50%);
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, .92);
-    letter-spacing: .4px;
-    background: rgba(10, 30, 50, .42);
-    padding: 5px 12px;
-    border-radius: 999px;
-    backdrop-filter: blur(4px);
-    pointer-events: none;
-    white-space: nowrap;
-    z-index: 3;
-  }
-  @media (pointer: coarse) { #hint { display: none; } }
+  
   @media (pointer: coarse), (max-width: 640px), (max-height: 680px) {
     canvas, body[data-theme="dark"] canvas, body[data-theme="amoled"] canvas { border-radius: 0; box-shadow: none; margin: 0; }
   }
@@ -171,7 +154,7 @@
     <button id="btnSound" class="ctl" aria-label="Sesi aç veya kapat"></button>
     <button id="btnPause" class="ctl" aria-label="Duraklat veya devam et"></button>
   </div>
-  <div id="hint">SPACE / ↑ zıpla &nbsp;·&nbsp; P duraklat &nbsp;·&nbsp; M ses</div>
+  
 </div>
 <script>
 (() => {
@@ -181,7 +164,6 @@
   const ctx = canvas.getContext('2d');
   const stage = document.getElementById('stage');
   const uiRoot = document.getElementById('ui');
-  const hint = document.getElementById('hint');
   const btnSound = document.getElementById('btnSound');
   const btnPause = document.getElementById('btnPause');
 
@@ -698,6 +680,7 @@
     luck: { day: '', tours: 0, wheelFreeUsed: false, coinStreak: 0, levels: {}, misses: {} },
     top: [],                      // { s, m, d } Top 10
     mbest: { klasik: best, zaman: 0, zen: 0, ters: 0, gunluk: 0 },
+    mode: 'klasik',
     perm: { kalkan: false, can: false },
     convDay: '', convCount: 0,
     threshold: [],                // ulaşılan 100'ler: [100, 200, ...]
@@ -734,6 +717,7 @@
       if (!Array.isArray(SAVE.top)) SAVE.top = [];
       SAVE.mbest = Object.assign({ klasik: best, zaman: 0, zen: 0, ters: 0, gunluk: 0 }, (SAVE.mbest && typeof SAVE.mbest === 'object') ? SAVE.mbest : {});
       SAVE.mbest.klasik = Math.max(SAVE.mbest.klasik || 0, best);
+      SAVE.mode = (raw.mode && CONFIG.modes.some(m => m.id === raw.mode)) ? raw.mode : 'klasik';
       SAVE.perm = Object.assign({ kalkan: false, can: false }, (SAVE.perm && typeof SAVE.perm === 'object') ? SAVE.perm : {});
       SAVE.perm.kalkan = !!SAVE.perm.kalkan; SAVE.perm.can = !!SAVE.perm.can;
       if (!Array.isArray(SAVE.threshold)) SAVE.threshold = [];
@@ -909,7 +893,7 @@
   let shopOpenedAt = 0;
 
   /* v4 state */
-  let mode = 'klasik';           // CONFIG.modes id
+  let mode = (SAVE.mode && CONFIG.modes.some(m => m.id === SAVE.mode)) ? SAVE.mode : 'klasik';           // CONFIG.modes id
   let screenAt = 0;              // ekran açılma zamanı (animasyon)
   let runTime = 60;              // Zamana Karşı kalan süre
   let gravDir = 1, gravFlipT = 8, gravWarn = 0; // ters yerçekimi
@@ -969,7 +953,7 @@
     gameOverAt = 0; scorePop = 0; scoreIdleT = 0; shakeT = 0; shakeMag = 0; flashA = 0;
     isNewBest = false;
     active = null; slowPipes = 0; x2Pipes = 0; invT = 0; // armed is kept across runs
-    runTime = 60; gravDir = 1; gravFlipT = 8; gravWarn = 0;
+    runTime = 60; gravDir = (mode === 'ters') ? -1 : 1; gravFlipT = 8; gravWarn = 0;
     combo = 0; comboMul = 1; perfCount = 0; comboTxtT = 0; comboTxt = '';
     boss = null; bossNext = CONFIG.boss.every;
     bossPending = false; bossPendingT = 0; bossWarned = false; birdShotT = 0; clearShots();
@@ -1040,7 +1024,6 @@
     if (!r.width || !r.height) return;
     uiRoot.style.top = Math.round(r.top + 14) + 'px';
     uiRoot.style.right = Math.round(Math.max(0, window.innerWidth - r.right) + 14) + 'px';
-    hint.style.bottom = Math.round(Math.max(0, window.innerHeight - r.bottom) + 10) + 'px';
   }
 
   function fit() {
@@ -1299,7 +1282,16 @@
     puShown = {};
     rainT = 0; timeScale = 1; deathSlowT = 0; zoomT = 0;
     extraCan = 0; startBoostT = 0; permUsed = false;
-    gravDir = 1; gravFlipT = 8; gravWarn = 0;
+    if (mode === 'ters') {
+      gravDir = -1;
+      gravFlipT = 8;
+      gravWarn = 0;
+      addFloat(W / 2, 210, '🔼 TERS YERÇEKİMİ AKTİF!', '#c084fc');
+    } else {
+      gravDir = 1;
+      gravFlipT = 8;
+      gravWarn = 0;
+    }
     runTime = 60;
     seedDaily();
     lastGapCenter = null;
@@ -1318,7 +1310,7 @@
     }
     if (SAVE.perm.kalkan) puShow('🛡️ KALKAN HAZIR', '#4d96ff');
     if (SAVE.perm.can) { extraCan += 1; puShow('❤️ +1 CAN', '#ff6b6b'); }
-    bird.vy = FLAP;
+    bird.vy = FLAP * gravDir;
     bird.wing = 0;
     bird.sq = 1;
     bird.landed = false;
@@ -1365,8 +1357,6 @@
     btnPause.disabled = !on;
     const showChrome = state === 'ready' || state === 'playing' || state === 'paused';
     uiRoot.style.display = showChrome ? 'flex' : 'none';
-    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-    hint.style.display = showChrome && !coarse ? 'block' : 'none';
   }
 
   /* ---------------- world ---------------- */
@@ -1851,7 +1841,7 @@
           gravFlipT = 8;
           gravWarn = 0;
           flashA = .4; shakeT = .3; shakeMag = 4;
-          addFloat(W / 2, 210, gravDir < 0 ? '↑ YERÇEKİMİ TERS!' : '↓ YERÇEKİMİ NORMAL', gravDir < 0 ? '#c084fc' : '#4d96ff');
+          addFloat(W / 2, 210, gravDir < 0 ? '🔼 YERÇEKİMİ TERS!' : '🔽 YERÇEKİMİ NORMAL!', gravDir < 0 ? '#c084fc' : '#4d96ff');
           sFlip(); setVib(80);
         }
       }
@@ -3203,7 +3193,7 @@
     ctx.fillText(bn + ' · ' + boss.hp + ' can', cx, cy + 56);
     ctx.restore();
   }
-
+
   function drawShots() {
     if (!shots.length) return;
     ctx.save();
@@ -3225,9 +3215,9 @@
       ctx.fill();
     }
     ctx.restore();
-  }
+  }
 
-  function drawComboText() {
+  function drawComboText() {
     if (comboTxtT <= 0) return;
     const k = comboTxtT / 1.1;
     ctx.save();
@@ -3441,6 +3431,7 @@
   }
 
   function drawBirdShadow() {
+    if (mode === 'ters' && gravDir < 0) return;
     const d = Math.max(0, Math.min(1, (FLOOR - bird.y) / FLOOR));
     ctx.save();
     ctx.fillStyle = 'rgba(25, 50, 35, ' + (.05 + .22 * (1 - d)).toFixed(3) + ')';
@@ -3688,9 +3679,10 @@
     ctx.rotate(bird.rot);
     // Oyun içi güç ölçeği (mini/dev) + squash & stretch on flap
     const bs = birdScale();
-    ctx.scale(bs * (1 - .13 * bird.sq), bs * (1 + .22 * bird.sq));
+    const sy = (mode === 'ters' && gravDir < 0) ? -1 : 1;
+    ctx.scale(bs * (1 - .13 * bird.sq), bs * (1 + .22 * bird.sq) * sy);
 
-    paintBird(currentSkin(), Math.sin(bird.wing) * (bird.vy < 0 ? .85 : .35) - .12, bird.blink > 0);
+    paintBird(currentSkin(), Math.sin(bird.wing) * (bird.vy * gravDir < 0 ? .85 : .35) - .12, bird.blink > 0);
 
     ctx.restore();
 
@@ -3949,6 +3941,25 @@
       ctx.fillStyle = warnTime ? '#ffffff' : sk.chipText;
       ctx.fillText(bt, W / 2, 93);
       ctx.restore();
+    } else if (mode === 'ters') {
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = FONTS.f600_13;
+      const isTers = gravDir < 0;
+      const sec = Math.ceil(gravFlipT);
+      const bt = isTers ? ('🔼 TERS (' + sec + 's)') : ('🔽 NORMAL (' + sec + 's)');
+      const tw = textWidth(bt);
+      ctx.fillStyle = isTers ? 'rgba(192, 132, 252, .32)' : sk.chipBg;
+      roundRect(W / 2 - tw / 2 - 12, 82, tw + 24, 22, 11);
+      ctx.fill();
+      ctx.strokeStyle = isTers ? '#c084fc' : sk.border;
+      ctx.lineWidth = 1.2;
+      roundRect(W / 2 - tw / 2 - 12, 82, tw + 24, 22, 11);
+      ctx.stroke();
+      ctx.fillStyle = isTers ? '#f3e8ff' : sk.chipText;
+      ctx.fillText(bt, W / 2, 93);
+      ctx.restore();
     } else {
       ctx.save();
       ctx.globalAlpha = 0.85;
@@ -4012,7 +4023,7 @@
         ctx.globalAlpha = .85;
         ctx.font = '700 16px ' + FONT;
         ctx.fillStyle = '#c084fc';
-        ctx.fillText(gravDir < 0 ? '↑↑ DİKKAT: TERS DÖNÜYOR ↑↑' : '↓↓ DİKKAT: NORMAL DÖNÜYOR ↓↓', W / 2, 150);
+        ctx.fillText(gravDir < 0 ? '↓↓ DİKKAT: NORMAL DÖNÜYOR ↓↓' : '↑↑ DİKKAT: TERS DÖNÜYOR ↑↑', W / 2, 150);
         ctx.restore();
       }
     }
@@ -4473,28 +4484,57 @@
     ctx.fillStyle = sk.overlay;
     ctx.fillRect(0, -UI_OY, W, H);
 
-    panel(100, 225, 200, 152, 22, sk.panel);
+    panel(90, 204, 220, 192, 22, sk.panel);
 
     // Pause icon in a circle
     ctx.fillStyle = sk.panelSoft;
-    ctx.beginPath(); ctx.arc(200, 262, 26, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(200, 240, 24, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = sk.text;
-    roundRect(191, 251, 6.5, 22, 3); ctx.fill();
-    roundRect(202.5, 251, 6.5, 22, 3); ctx.fill();
+    roundRect(192, 230, 6, 20, 3); ctx.fill();
+    roundRect(202, 230, 6, 20, 3); ctx.fill();
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = '700 17px ' + FONT;
     ctx.fillStyle = sk.text;
-    ctx.fillText('DURAKLATILDI', 200, 306);
-    ctx.fillStyle = sk.textDim;
-    ctx.font = FONTS.f500_11;
-    ctx.fillText('P / ESC / DOKUN', 200, 326);
+    ctx.fillText('DURAKLATILDI', 200, 278);
 
-    // Continue pill (3 duraklı gradient + scale .96)
-    ctx.globalAlpha = .8 + .2 * Math.sin(performance.now() / 260);
-    drawBtn(146, 344, 108, 28, 16, CONFIG.gradients.btnSuccess, 'DEVAM ▶', '#ffffff', FONTS.f600_12);
+    // DEVAM button (green gradient)
+    ctx.globalAlpha = .85 + .15 * Math.sin(performance.now() / 260);
+    drawBtn(110, 302, 180, 34, 17, CONFIG.gradients.btnSuccess, 'DEVAM ▶', '#ffffff', FONTS.f700_13);
     ctx.globalAlpha = 1;
+
+    // ANA MENÜ button (panel style)
+    ctx.save();
+    ctx.fillStyle = sk.panelSoft;
+    roundRect(110, 346, 180, 32, 16);
+    ctx.fill();
+    ctx.strokeStyle = sk.border;
+    ctx.lineWidth = 1;
+    roundRect(110, 346, 180, 32, 16);
+    ctx.stroke();
+    ctx.fillStyle = sk.text;
+    ctx.font = FONTS.f600_12;
+    ctx.fillText('🏠 ANA MENÜ', 200, 362.5);
+    ctx.restore();
+  }
+
+  function pausedTap(px, py) {
+    // DEVAM butonu (110..290, 302..336)
+    if (px >= 110 && px <= 290 && py >= 302 && py <= 336) {
+      togglePause();
+      return true;
+    }
+    // ANA MENÜ butonu (110..290, 346..378)
+    if (px >= 110 && px <= 290 && py >= 346 && py <= 378) {
+      sClick();
+      recordRunResults();
+      reset();
+      return true;
+    }
+    // Dışarıya tıklanınca oyuna devam et
+    togglePause();
+    return true;
   }
 
   /* ---------------- game over ---------------- */
@@ -5415,6 +5455,8 @@
       const bx = 46, by = 138 + i * 74;
       if (px >= bx && px <= bx + 308 && py >= by && py <= by + 64) {
         mode = CONFIG.modes[i].id;
+        SAVE.mode = mode;
+        saveSave();
         sClick(); setVib(20);
         closeScreen();
         return true;
@@ -10451,7 +10493,7 @@ return qrcode;
       flap();
       return;
     }
-    if (state === 'paused') { togglePause(); return; }
+    if (state === 'paused') { pausedTap(p.x, p.y); return; }
     if (state === 'gameover') {
       if (gameoverTapExtra(p.x, p.y)) return;
       if (performance.now() - gameOverAt > 500) flap();   // başka yere dokun → yeniden başla
