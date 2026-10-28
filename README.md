@@ -25,7 +25,7 @@ GitHub reponuzda **Settings → Pages** sekmesine gidin:
 * **Branch:** `main` / `/(root)` seçip **Save** butonuna basın.
 
 Yaklaşık 1 dakika sonra oyununuz şu adreste canlıya geçer:
-> **`https://HeXtR0.github.io/flappy-bird/`**
+> **`https://HeXtR0.github.io/bouncy-bird/`**
 
 ---
 
@@ -34,3 +34,4 @@ Yaklaşık 1 dakika sonra oyununuz şu adreste canlıya geçer:
 * **Oyunu Açma:** Linke tıkladığınız an oyun tam ekran tarayıcıda başlar.
 * **Telefona Yükleme:** Tarayıcı menüsünden *"Ana Ekrana Ekle"* (veya *"Uygulamayı Yükle"*) diyerek gerçek bir mobil oyun gibi internetsiz oynayabilirsiniz.
 * **Yakındakine Gönder (Jest):** Ayarlar → "Oyunu Paylaş" ekranından **"YAKINDAKİNE AT"** butonuna basıp telefonunuzu arkadaşınızın telefonuna dokundurduğunuzda (AirDrop / Quick Share) anında iletilir.
+
