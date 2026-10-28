@@ -1,5 +1,5 @@
 /* Bouncy Bird Offline Service Worker */
-const CACHE_NAME = 'bouncy-bird-v1';
+const CACHE_NAME = 'bouncy-bird-v2';
 const ASSETS = [
   './',
   './index.html',

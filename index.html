@@ -943,7 +943,12 @@
   function D() { return CONFIG.difficulty[SAVE.settings.diff] || CONFIG.difficulty.normal; }
   function lowPerf() { return SAVE.settings.lowPerf || autoLow; }
   function setVib(ms) {
-    if (SAVE.settings.vib && navigator.vibrate) { try { navigator.vibrate(ms); } catch (_) { /* ignore */ } }
+    if (SAVE.settings.vib && navigator.vibrate) {
+      try {
+        if (typeof ms === 'number' && ms > 0 && ms < 35) ms = 35;
+        navigator.vibrate(ms);
+      } catch (_) { /* ignore */ }
+    }
   }
   function seedDaily() { dailySeed = (hashStr('run-' + dayKey()) ^ 0x9e3779b9) >>> 0; }
   function dRng() {              // seeded LCG — günlük mücadele boruları herkeste aynı
@@ -1237,6 +1242,7 @@
     bird.sq = 1;
     flapPuffs();
     sFlap();
+    setVib(35);
     stats.jumps++;
     taskProg('t_flap80', 1);
   }
@@ -1572,7 +1578,7 @@
     if (isNewBest) burstConfetti();
     deathSlowT = .9;              // ölümde yavaş çekim
     zoomT = .8;                   // hafif kamera zoom
-    setVib([30, 40, 30]);
+    setVib([60, 50, 90]);
     sHit(); sDie();
     recordRunResults();
     syncButtons();
@@ -5988,7 +5994,7 @@
         if (r.id === 'sfx') { toggleSfx(); setVib(20); return true; }
         else { toggleMus(); return true; }
       } else if (r.id === 'vib') {
-        st.vib = !st.vib; saveSave(); sClick(); if (st.vib) setVib(30);
+        st.vib = !st.vib; saveSave(); sClick(); if (st.vib) setVib(80);
         return true;
       } else if (r.id === 'perf') {
         st.lowPerf = !st.lowPerf; saveSave(); sClick();
