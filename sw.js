@@ -1,5 +1,5 @@
-/* Flappy Bird Offline Service Worker */
-const CACHE_NAME = 'flappy-bird-v1';
+/* Bouncy Bird Offline Service Worker */
+const CACHE_NAME = 'bouncy-bird-v1';
 const ASSETS = [
   './',
   './index.html',

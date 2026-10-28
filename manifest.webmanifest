@@ -1,6 +1,6 @@
 {
-  "name": "Flappy Bird",
-  "short_name": "Flappy Bird",
+  "name": "Bouncy Bird",
+  "short_name": "Bouncy Bird",
   "description": "5 mod, boss savaşları, görevler, atölye ve offline oyun.",
   "start_url": "./index.html",
   "scope": "./",

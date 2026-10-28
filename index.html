@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>Flappy Bird</title>
+<title>Bouncy Bird</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐦</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -166,7 +166,7 @@
 </head>
 <body>
 <div id="stage">
-  <canvas id="game" width="400" height="600" aria-label="Flappy Bird oyunu. Zıplamak için Space, Yukarı Ok tuşu veya dokunma."></canvas>
+  <canvas id="game" width="400" height="600" aria-label="Bouncy Bird oyunu. Zıplamak için Space, Yukarı Ok tuşu veya dokunma."></canvas>
   <div id="ui">
     <button id="btnSound" class="ctl" aria-label="Sesi aç veya kapat"></button>
     <button id="btnPause" class="ctl" aria-label="Duraklat veya devam et"></button>
@@ -4134,7 +4134,7 @@
     ctx.textBaseline = 'middle';
     ctx.lineJoin = 'round';
     ctx.font = '700 42px ' + FONT;
-    const word = 'FLAPPY BIRD';
+    const word = 'BOUNCY BIRD';
     const widths = [];
     let total = 0;
     for (const ch of word) {
@@ -9945,7 +9945,7 @@ return qrcode;
       if (px >= 206 && px <= 354 && py >= 480 && py <= 514) {
         const code = encodeSave();
         if (navigator.share) {
-          navigator.share({ title: 'Flappy Bird Save', text: code }).catch(() => {});
+          navigator.share({ title: 'Bouncy Bird Save', text: code }).catch(() => {});
         } else if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(code).then(() => addFloat(W / 2, 420 + UI_OY, '📋 KOD KOPYALANDI!', '#3ecb7d'));
         } else {
@@ -10101,7 +10101,7 @@ return qrcode;
     // [ 📤 PAYLAŞ ]
     if (px >= 206 && px <= 354 && py >= 480 && py <= 514) {
       if (navigator.share) {
-        navigator.share({ title: 'Flappy Bird', url: url }).catch(() => {
+        navigator.share({ title: 'Bouncy Bird', text: 'Bouncy Bird oyna! (Tamamen internetsiz oynanabilir)', url: url }).catch(() => {
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(url).then(() => addFloat(W / 2, 396 + UI_OY, '📋 LİNK KOPYALANDI!', '#3ecb7d'));
           } else {
