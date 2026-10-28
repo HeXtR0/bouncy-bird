@@ -35,7 +35,7 @@ Bu klasörü GitHub'a yükleyip hemen canlıya almak için:
    * **Source:** `Deploy from a branch` seçin.
    * **Branch:** `main` / `/(root)` seçip **Save** butonuna basın.
 4. Yaklaşık 1 dakika sonra oyununuz şu adreste canlıya geçer:
-   > **`https://<KULLANICI_ADINIZ>.github.io/flappy-bird/`**
+   > **`https://HeXtR0.github.io/flappy-bird/`**
 
 ---
 
