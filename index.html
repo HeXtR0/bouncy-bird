@@ -6963,20 +6963,46 @@
   const nfcSupported = typeof window !== 'undefined' && 'NDEFReader' in window;
   let nfcScanning = false;
 
+  let isWritingNfc = false;
+  let nfcAbortController = null;
+
   async function writeNfcData(payload, isUrl = false) {
     if (!nfcSupported) {
       addFloat(W / 2, 400 + UI_OY, 'NFC için Chrome (Android) gerekir', '#ff8a8a');
       return;
     }
+    if (isWritingNfc) {
+      addFloat(W / 2, 400 + UI_OY, '📡 Zaten etiket bekleniyor... Telefonu yaklaştırın', '#ffe359');
+      return;
+    }
+    isWritingNfc = true;
     try {
-      addFloat(W / 2, 400 + UI_OY, '📡 NFC Etiketi Bekleniyor... Dokundurun', '#3ecb7d');
+      addFloat(W / 2, 400 + UI_OY, '📡 NFC Etiketi Bekleniyor... Telefona dokundurun', '#3ecb7d');
       const ndef = new NDEFReader();
-      await ndef.write(isUrl ? { records: [{ recordType: 'url', data: payload }] } : { records: [{ recordType: 'text', data: payload }] });
+      nfcAbortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        if (nfcAbortController) nfcAbortController.abort();
+      }, 15000);
+
+      await ndef.write(
+        isUrl ? { records: [{ recordType: 'url', data: payload }] } : { records: [{ recordType: 'text', data: payload }] },
+        { signal: nfcAbortController.signal }
+      );
+      clearTimeout(timeoutId);
       addFloat(W / 2, 400 + UI_OY, '✅ NFC Etiketine Başarıyla Yazıldı!', '#3ecb7d');
       sClick();
     } catch (err) {
-      addFloat(W / 2, 400 + UI_OY, '❌ ' + (err.message || 'NFC Hatası'), '#ff8a8a');
+      if (err.name === 'AbortError') {
+        addFloat(W / 2, 400 + UI_OY, '⏳ Zaman aşımı (NFC etiket dokundurulmadı)', '#ff8a8a');
+      } else if (err.message && err.message.toLowerCase().includes('cancelled')) {
+        addFloat(W / 2, 400 + UI_OY, 'ℹ️ Yazma isteği yenilendi', '#3ecb7d');
+      } else {
+        addFloat(W / 2, 400 + UI_OY, '❌ ' + (err.message || 'NFC Hatası'), '#ff8a8a');
+      }
       sErr();
+    } finally {
+      isWritingNfc = false;
+      nfcAbortController = null;
     }
   }
 
