@@ -6965,7 +6965,7 @@
 
   async function writeNfcData(payload, isUrl = false) {
     if (!nfcSupported) {
-      addFloat(W / 2, 400 + UI_OY, 'NFC bu cihazda desteklenmiyor', '#ff8a8a');
+      addFloat(W / 2, 400 + UI_OY, 'NFC için Chrome (Android) gerekir', '#ff8a8a');
       return;
     }
     try {
@@ -9745,14 +9745,15 @@ return qrcode;
       chipDark(W / 2, 456, 'Format: FPS3 · paket + CRC');
 
       // Butonlar: [ 📋 KODU KOPYALA ] [ 📤 PAYLAŞ ]
-      drawBtn(46, 480, 148, 34, 17, CONFIG.gradients.btnCyan, '📋 KOPYALA', '#ffffff', FONTS.f700_11);
-      drawBtn(206, 480, 148, 34, 17, CONFIG.gradients.btnSuccess, '📤 PAYLAŞ', '#ffffff', FONTS.f700_11);
+      drawBtn(46, 476, 148, 34, 17, CONFIG.gradients.btnCyan, '📋 KOPYALA', '#ffffff', FONTS.f700_11);
+      drawBtn(206, 476, 148, 34, 17, CONFIG.gradients.btnSuccess, '📤 PAYLAŞ', '#ffffff', FONTS.f700_11);
+      drawBtn(46, 516, 308, 28, 14, [sk.panelSoft, sk.panelSoft, sk.panelSoft], '📡 NFC KARTINA YAZ', sk.text, FONTS.f700_10);
 
       ctx.save();
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.font = FONTS.f500_10;
       ctx.fillStyle = sk.textDim;
-      ctx.fillText('Diğer cihazın kamerasıyla bu QR kodu tarayın', W / 2, 532);
+      ctx.fillText('QR okutun veya NFC kartına kaydedin', W / 2, 556);
       ctx.restore();
     } else {
       // AL SEKME
@@ -9831,13 +9832,14 @@ return qrcode;
       drawBtn(206, 398, 148, 34, 17, CONFIG.gradients.btnCyan, '📁 GALERİDEN SEÇ', '#ffffff', FONTS.f700_11);
 
       // 3. [ 📋 KOD YAPIŞTIR ]
-      drawBtn(46, 440, 308, 34, 17, CONFIG.gradients.btnPrimary, '📋 KOD YAPIŞTIR', '#ffffff', FONTS.f700_11);
+      drawBtn(46, 436, 308, 32, 16, CONFIG.gradients.btnPrimary, '📋 KOD YAPIŞTIR', '#ffffff', FONTS.f700_11);
+      drawBtn(46, 474, 308, 32, 16, CONFIG.gradients.btnCyan, '📡 NFC KARTINDAN OKU', '#ffffff', FONTS.f700_11);
 
       ctx.save();
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.font = FONTS.f500_10;
       ctx.fillStyle = sk.textDim;
-      ctx.fillText('Barkod okuyucu: BarcodeDetector + jsQR fallback', W / 2, 492);
+      ctx.fillText('Barkod okuyucu: BarcodeDetector + jsQR fallback', W / 2, 520);
       ctx.restore();
     }
 
@@ -9942,7 +9944,7 @@ return qrcode;
         return true;
       }
       // [ 📤 PAYLAŞ ]
-      if (px >= 206 && px <= 354 && py >= 480 && py <= 514) {
+      if (px >= 206 && px <= 354 && py >= 476 && py <= 512) {
         const code = encodeSave();
         if (navigator.share) {
           navigator.share({ title: 'Bouncy Bird Save', text: code }).catch(() => {});
@@ -9952,6 +9954,11 @@ return qrcode;
           prompt('Kayıt Kodu:', code);
         }
         sClick();
+        return true;
+      }
+      // [ 📡 NFC KARTINA YAZ ]
+      if (px >= 46 && px <= 354 && py >= 516 && py <= 548) {
+        writeNfcData(encodeSave(), false);
         return true;
       }
     } else {
@@ -9975,8 +9982,13 @@ return qrcode;
         sClick();
         return true;
       }
+      // [ 📡 NFC KARTINDAN OKU ]
+      if (px >= 46 && px <= 354 && py >= 474 && py <= 508) {
+        startNfcScan();
+        return true;
+      }
       // [ 📋 KOD YAPIŞTIR ]
-      if (px >= 46 && px <= 354 && py >= 440 && py <= 474) {
+      if (px >= 46 && px <= 354 && py >= 436 && py <= 470) {
         const code = prompt('Kayıt Kodunu Yapıştır (FPS3 / FPS2 / FPS1):');
         if (code) {
           if (/^FPS[123]\./i.test(code.trim())) {
@@ -10068,15 +10080,18 @@ return qrcode;
     chipDark(W / 2, 440, truncateText(url || 'Link yok', 260));
 
     // İki buton: "📋 KOPYALA" ve "📤 PAYLAŞ"
-    drawBtn(46, 480, 148, 34, 17, CONFIG.gradients.btnCyan, '📋 KOPYALA', '#ffffff', FONTS.f700_11);
-    drawBtn(206, 480, 148, 34, 17, CONFIG.gradients.btnSuccess, '📤 PAYLAŞ', '#ffffff', FONTS.f700_11);
+    drawBtn(46, 476, 148, 34, 17, CONFIG.gradients.btnCyan, '📋 KOPYALA', '#ffffff', FONTS.f700_11);
+    drawBtn(206, 476, 148, 34, 17, CONFIG.gradients.btnSuccess, '📤 PAYLAŞ', '#ffffff', FONTS.f700_11);
+
+    // NFC Butonu (Her cihazda görünür)
+    drawBtn(46, 516, 308, 28, 14, [sk.panelSoft, sk.panelSoft, sk.panelSoft], '📡 NFC ETİKETİNE YAZ', sk.text, FONTS.f700_10);
 
     // Alt yazı
     ctx.save();
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.font = FONTS.f500_10;
     ctx.fillStyle = sk.textDim;
-    ctx.fillText("Arkadaşın bu QR'ı okutunca oyun tarayıcısında açılır", W / 2, 532);
+    ctx.fillText("Telefona dokun (AirDrop/QuickShare), NFC veya QR okut", W / 2, 556);
     ctx.restore();
 
     ctx.restore();
@@ -10099,7 +10114,7 @@ return qrcode;
       return true;
     }
     // [ 📤 PAYLAŞ ]
-    if (px >= 206 && px <= 354 && py >= 480 && py <= 514) {
+    if (px >= 206 && px <= 354 && py >= 476 && py <= 512) {
       if (navigator.share) {
         navigator.share({ title: 'Bouncy Bird', text: 'Bouncy Bird oyna! (Tamamen internetsiz oynanabilir)', url: url }).catch(() => {
           if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -10114,6 +10129,11 @@ return qrcode;
         prompt('Oyun linki:', url);
       }
       sClick();
+      return true;
+    }
+    // [ 📡 NFC ETİKETİNE YAZ ]
+    if (px >= 46 && px <= 354 && py >= 516 && py <= 548) {
+      writeNfcData(url, true);
       return true;
     }
     return false;
