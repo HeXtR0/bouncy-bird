@@ -16,6 +16,16 @@ Oyunu herhangi bir modern tarayıcıda hemen oynamak için:
 
 ---
 
+## 📸 Ekran Görüntüleri
+
+<p align="center">
+  <img src="assets/screenshots/title.png" width="31%" alt="Ana Menü" />
+  <img src="assets/screenshots/gameplay.png" width="31%" alt="Oyun İçi Oynanış" />
+  <img src="assets/screenshots/modes.png" width="31%" alt="Oyun Modları" />
+</p>
+
+---
+
 ## ✨ Öne Çıkan Özellikler
 
 ### 🕹️ Oyun Modları
